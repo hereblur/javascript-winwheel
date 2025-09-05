@@ -1,0 +1,10 @@
+{
+    "name": "winwheel",
+    "version": "1.0.2",
+    "description": "Winwheel.js is a feature packed JavaScript library that allows you to easily create spinning Prize Wheels on HTML5 canvas using highly configurable JavaScript classes.",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "author": "",
+    "license": "MIT"
+}
+
