@@ -1,3 +1,4 @@
+"use strict";
 /*
     Winwheel.js, by Douglas McKechie @ www.dougtesting.net
     See website for tutorials and other documentation.
@@ -29,9 +30,8 @@
 // The constructor for the WinWheel object, a JSON-like array of options can be passed in.
 // By default the wheel is drawn if canvas object exists on the page, but can pass false as second parameter if don't want this to happen.
 // ====================================================================================================================
-function Winwheel(options, drawWheel)
-{
-    defaultOptions = {
+function Winwheel(options, drawWheel) {
+    var defaultOptions = {
         'canvasId'          : 'canvas',     // Id of the canvas which the wheel is to draw on to.
         'centerX'           : null,         // X position of the center of the wheel. The default of these are null which means will be placed in center of the canvas.
         'centerY'           : null,         // Y position of the wheel center. If left null at time of construct the center of the canvas is used.
@@ -1004,7 +1004,7 @@ Winwheel.prototype.drawSegmentText = function()
                                 // The initial draw angle is the center of the segment when only one character.
                                 drawAngle = (seg.startAngle + ((seg.endAngle - seg.startAngle) / 2));
 
-                                // To ensure is dead-center the text alignment also needs to be centered.
+                                // To ensure is dead-center the text alignment also needs to be centred.
                                 this.ctx.textAlign = 'center';
                             }
 
@@ -1163,9 +1163,9 @@ Winwheel.prototype.drawSegmentText = function()
                             let yPos = 0;
 
                             if (alignment == 'outer') {
-                                yPos = (centerY - outerRadius + margin);
+                                yPos = (centerY + outerRadius - margin);
                             } else if (alignment == 'inner') {
-                                yPos = (centerY - innerRadius - margin);
+                                yPos = (centerY + innerRadius + margin);
                             }
 
                             // We need to know how much to move the y axis each time.
@@ -1220,13 +1220,9 @@ Winwheel.prototype.drawSegmentText = function()
                                     centerAdjustment = (yInc * (lines[i].length -1) / 2);
                                 }
 
-                                // Now work out where to start rendering the string. This is half way between the inner and outer of the wheel, with the
-                                // centerAdjustment included to correctly position texts with more than one character over the center.
-                                // If there is a margin it is used to push the text away from the center of the wheel.
-                                let yPos = (centerY - innerRadius - ((outerRadius - innerRadius) / 2)) - centerAdjustment - margin;
+                                let yPos = (centerY + innerRadius + ((outerRadius - innerRadius) / 2)) + centerAdjustment + margin;
 
-                                // Now loop and draw just like outer text rendering.
-                                for (let c = 0; c < lines[i].length; c++) {
+                                for (let c = (lines[i].length -1); c >= 0; c--) {
                                     let character = lines[i].charAt(c);
 
                                     if (fillStyle) {
@@ -1237,15 +1233,15 @@ Winwheel.prototype.drawSegmentText = function()
                                         this.ctx.strokeText(character, centerX + lineOffset, yPos);
                                     }
 
-                                    yPos += yInc;
+                                    yPos -= yInc;
                                 }
                             }
 
                             this.ctx.restore();
 
                         } else if (orientation == 'curved') {
-                            // There is no built in canvas function to draw text around an arc, so
-                            // we need to do this ourselves.
+                            // There is no built in canvas function to draw text around an arc,
+                            // so we need to do this ourselves.
                             let radius = 0;
 
                             // Set the alignment of the text - inner, outer, or center by calculating
@@ -1589,7 +1585,14 @@ Winwheel.prototype.getSegmentNumberAt = function(x, y)
             // If the hypotenuseSideLength (length of location from the center of the wheel) is with the radius
             // then we can assign the segment to the found segment and break out the loop.
 
-            // Have to take in to account hollow wheels (doughnuts) so check is greater than innerRadius as
+           
+
+            // // Have to take in to account hollow wheels (doughnuts) so check is greater than innerRadius as
+            // well as less than or equal to the outerRadius of the wheel.
+            if ((hypotenuseSideLength >= innerRadius) && (hypotenuseSideLength <= outerRadius)) {
+                foundSegmentNumber = x;
+                break;
+            }
             // well as less than or equal to the outerRadius of the wheel.
             if ((hypotenuseSideLength >= innerRadius) && (hypotenuseSideLength <= outerRadius)) {
                 foundSegmentNumber = x;
@@ -2232,7 +2235,8 @@ function winwheelTriggerSound()
 // ====================================================================================================================
 // This function is called-back when the greensock animation has finished.
 // ====================================================================================================================
-let winwheelToDrawDuringAnimation = null;  // This global is set by the winwheel class to the wheel object to be re-drawn.
+let winwheelToDrawDuringAnimation = null;
+var winhweelAlreadyDrawn = false;  // This global is set by the winwheel class to the wheel object to be re-drawn.
 
 function winwheelStopAnimation(canCallback)
 {
@@ -2257,8 +2261,6 @@ function winwheelStopAnimation(canCallback)
 // Called after the image has loaded for each segment. Once all the images are loaded it then calls the draw function
 // on the wheel to render it. Used in constructor and also when a segment image is changed.
 // ====================================================================================================================
-let winhweelAlreadyDrawn = false;
-
 function winwheelLoadedImage()
 {
     // Prevent multiple drawings of the wheel which ocurrs without this check due to timing of function calls.
