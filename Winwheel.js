@@ -2235,7 +2235,7 @@ function winwheelTriggerSound()
 // This function is called-back when the greensock animation has finished.
 // ====================================================================================================================
 let winwheelToDrawDuringAnimation = null;
-var winhweelAlreadyDrawn = false;  // This global is set by the winwheel class to the wheel object to be re-drawn.
+// var winhweelAlreadyDrawn = false;  // This global is set by the winwheel class to the wheel object to be re-drawn.
 
 function winwheelStopAnimation(canCallback)
 {
