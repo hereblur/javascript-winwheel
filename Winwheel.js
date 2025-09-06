@@ -1165,9 +1165,9 @@ Winwheel.prototype.drawSegmentText = function()
                             let yPos = 0;
 
                             if (alignment == 'outer') {
-                                yPos = (centerY + outerRadius - margin);
+                                yPos = (centerY - outerRadius + margin);
                             } else if (alignment == 'inner') {
-                                yPos = (centerY + innerRadius + margin);
+                                yPos = (centerY - innerRadius - margin);
                             }
 
                             // We need to know how much to move the y axis each time.
@@ -1222,9 +1222,13 @@ Winwheel.prototype.drawSegmentText = function()
                                     centerAdjustment = (yInc * (lines[i].length -1) / 2);
                                 }
 
-                                let yPos = (centerY + innerRadius + ((outerRadius - innerRadius) / 2)) + centerAdjustment + margin;
+                                // Now work out where to start rendering the string. This is half way between the inner and outer of the wheel, with the
+                                // centerAdjustment included to correctly position texts with more than one character over the center.
+                                // If there is a margin it is used to push the text away from the center of the wheel.
+                                let yPos = (centerY - innerRadius - ((outerRadius - innerRadius) / 2)) - centerAdjustment - margin;
 
-                                for (let c = (lines[i].length -1); c >= 0; c--) {
+                                // Now loop and draw just like outer text rendering.
+                                for (let c = 0; c < lines[i].length; c++) {
                                     let character = lines[i].charAt(c);
 
                                     if (fillStyle) {
@@ -1235,7 +1239,7 @@ Winwheel.prototype.drawSegmentText = function()
                                         this.ctx.strokeText(character, centerX + lineOffset, yPos);
                                     }
 
-                                    yPos -= yInc;
+                                    yPos += yInc;
                                 }
                             }
 
@@ -1587,14 +1591,7 @@ Winwheel.prototype.getSegmentNumberAt = function(x, y)
             // If the hypotenuseSideLength (length of location from the center of the wheel) is with the radius
             // then we can assign the segment to the found segment and break out the loop.
 
-           
-
-            // // Have to take in to account hollow wheels (doughnuts) so check is greater than innerRadius as
-            // well as less than or equal to the outerRadius of the wheel.
-            if ((hypotenuseSideLength >= innerRadius) && (hypotenuseSideLength <= outerRadius)) {
-                foundSegmentNumber = x;
-                break;
-            }
+            // Have to take in to account hollow wheels (doughnuts) so check is greater than innerRadius as
             // well as less than or equal to the outerRadius of the wheel.
             if ((hypotenuseSideLength >= innerRadius) && (hypotenuseSideLength <= outerRadius)) {
                 foundSegmentNumber = x;
@@ -2263,6 +2260,8 @@ function winwheelStopAnimation(canCallback)
 // Called after the image has loaded for each segment. Once all the images are loaded it then calls the draw function
 // on the wheel to render it. Used in constructor and also when a segment image is changed.
 // ====================================================================================================================
+let winhweelAlreadyDrawn = false;
+
 function winwheelLoadedImage()
 {
     // Prevent multiple drawings of the wheel which ocurrs without this check due to timing of function calls.
